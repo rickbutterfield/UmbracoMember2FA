@@ -2,7 +2,7 @@
 
 Reference implementation and code examples for implementing two-factor authentication for Umbraco 13 members, including recovery codes support. This repository accompanies a detailed blog post explaining how to extend Umbraco's built-in 2FA functionality with proper recovery code generation and validation.
 
-This is reference code to go along with the blog post.
+This is reference code to go along with [the accompanying blog post](https://rickbutterfield.dev/blog/adding-2fa-plus-recovery-codes-for-umbraco-members/).
 
 It uses the [Clean](https://github.com/prjseal/Clean) starter kit and [uSync](https://github.com/KevinJump/uSync) for quick running of the code.
 
@@ -22,7 +22,7 @@ It uses the [Clean](https://github.com/prjseal/Clean) starter kit and [uSync](ht
 
 ## 🛠 Getting Started
 
-This repository contains reference code to accompany the blog post on implementing 2FA for Umbraco members. Use this code as a starting point for your own implementation.
+This repository contains reference code to [accompany the blog post on implementing 2FA for Umbraco members](https://rickbutterfield.dev/blog/adding-2fa-plus-recovery-codes-for-umbraco-members/). Use this code as a starting point for your own implementation.
 
 1. **Review the Implementation**: Examine the code structure and implementation patterns
 2. **Copy Relevant Code**: Take the components you need for your own project

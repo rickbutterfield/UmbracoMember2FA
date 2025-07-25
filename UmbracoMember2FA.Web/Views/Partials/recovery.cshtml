@@ -1,0 +1,21 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+
+@{
+    var recoveryModel = new RecoveryModel { RedirectUrl = "/members-area" };
+}
+
+<div class="recovery-form">
+    @using (Html.BeginUmbracoForm<LoginController>(nameof(LoginController.UseRecoveryCode)))
+    {
+        <h4>Use a recovery code</h4>
+        <hr/>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="mb-3">
+            <label asp-for="@recoveryModel.RecoveryCode" class="form-label"></label>
+            <input type="text" class="form-control" asp-for="@recoveryModel.RecoveryCode" value="" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+    }
+</div>

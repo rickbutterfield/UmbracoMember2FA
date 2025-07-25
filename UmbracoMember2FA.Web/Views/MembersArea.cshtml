@@ -1,0 +1,99 @@
+﻿@using Clean.Core.Models.ViewModels
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+@inject MemberModelBuilderFactory memberModelBuilderFactory
+@inject ITwoFactorLoginService _twoFactorLoginService
+@inject UserManager<MemberIdentityUser> _userManager
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.MembersArea>
+
+@{
+    Layout = "master.cshtml";
+
+    // Build a profile model to edit, by fetching the member's unique key.
+    var profileModel = await memberModelBuilderFactory
+        .CreateProfileModel()
+        .BuildForCurrentMemberAsync();
+
+    // Show all two factor providers
+    var providerNames = _twoFactorLoginService.GetAllProviderNames();
+}
+
+@await Html.PartialAsync("~/Views/Partials/pageHeader.cshtml", new PageHeaderViewModel(Model.Name, Model.Title, Model.Subtitle, Model.MainImage))
+
+<article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-10 mx-auto">
+                @if (providerNames.Any())
+                {
+                    <div asp-validation-summary="All" class="text-danger"></div>
+
+                    foreach (var providerName in providerNames)
+                    {
+                        var setupData = await _twoFactorLoginService.GetSetupInfoAsync(profileModel.Key, providerName);
+
+                        // If the `setupData` is `null` for the specified `providerName` it means the provider is already set up.
+                        // In this case, a button to disable the authentication is shown.
+                        if (setupData is null)
+                        {
+                            var user = await _userManager.GetUserAsync(Context.User);
+                            var recoveryCodeCount = await _userManager.CountRecoveryCodesAsync(user);
+
+                            IEnumerable<string>? recoveryCodes = null;
+                            if (recoveryCodeCount == 0)
+                            {
+                                recoveryCodes = await _userManager.GenerateNewTwoFactorRecoveryCodesAsync(user, 10);
+                            }
+
+                            <div class="recovery-codes-section mb-4">
+                                <p>Recovery codes remaining: @recoveryCodeCount</p>
+
+                                @if (recoveryCodes != null)
+                                {
+                                    <div class="alert alert-warning">
+                                        <h4>Save these recovery codes</h4>
+                                        <p>These recovery codes can be used to access your account if you lose your authenticator device. Save them in a secure location.</p>
+                                        <ul>
+                                            @foreach (var code in recoveryCodes)
+                                            {
+                                                <li><code>@code</code></li>
+                                            }
+                                        </ul>
+                                    </div>
+                                }
+
+                                @if (recoveryCodeCount > 0)
+                                {
+                                    <a href="?regenerate=true" class="btn btn-primary">Generate New Recovery Codes</a>
+                                }
+                            </div>
+
+                            @using (Html.BeginUmbracoForm<UmbTwoFactorLoginController>(nameof(UmbTwoFactorLoginController.Disable)))
+                            {
+                                <h2 class="mb-5">2FA using @providerName</h2>
+                                <input type="hidden" name="providerName" value="@providerName" />
+                                <button type="submit" class="btn btn-primary">Disable @providerName</button>
+                            }
+                        }
+                        // If `setupData` is not `null` the type is checked and the UI for how to set up the App Authenticator is shown.
+                        else if (setupData is QrCodeSetupData qrCodeSetupData)
+                        {
+                            @using (Html.BeginUmbracoForm<UmbTwoFactorLoginController>(nameof(UmbTwoFactorLoginController.ValidateAndSaveSetup)))
+                            {
+                                <h2>Setup @providerName</h2>
+                                <img src="@qrCodeSetupData.SetupCode?.QrCodeSetupImageUrl" />
+                                <p>Scan the code above with your authenticator app and enter the resulting code here to validate:</p>
+                                <input type="hidden" name="providerName" value="@providerName" />
+                                <input type="hidden" name="secret" value="@qrCodeSetupData.Secret" />
+
+                                <div class="mb-3">
+                                    <input type="text" class="form-control" name="code" id="code" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*" value="" />
+                                </div>
+                                <button type="submit" class="btn btn-primary">Validate & save</button>
+                            }
+                        }
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</article>

@@ -2,6 +2,8 @@
 
 Reference implementation and code examples for implementing two-factor authentication for Umbraco 13 members, including recovery codes support. This repository accompanies a detailed blog post explaining how to extend Umbraco's built-in 2FA functionality with proper recovery code generation and validation.
 
+It uses the [Clean](https://github.com/prjseal/Clean) starter kit and [uSync](https://github.com/KevinJump/uSync) for quick running of the code.
+
 ## 🚀 Features
 
 - **App-based 2FA**: Support for authenticator apps (Google Authenticator, Microsoft Authenticator, etc.)
@@ -23,6 +25,11 @@ This repository contains reference code to accompany the blog post on implementi
 1. **Review the Implementation**: Examine the code structure and implementation patterns
 2. **Copy Relevant Code**: Take the components you need for your own project
 3. **Adapt to Your Needs**: Modify the code to fit your specific requirements
+
+With uSync out of the box, you can use the following credentials to log in:
+
+Username: `admin@example.com`  
+Password: `1234567890`
 
 ### Key Files to Review
 
